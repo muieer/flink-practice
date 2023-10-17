@@ -25,7 +25,6 @@ public class ProcessWordCount extends KeyedProcessFunction<String, Tuple2<String
     @Override
     public void open(Configuration parameters) throws Exception {
 
-
         configMap = getRuntimeContext().getExecutionConfig().getGlobalJobParameters().toMap();
         ttlSeconds = Integer.parseInt(configMap.getOrDefault("ttlSeconds", "5"));
 

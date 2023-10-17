@@ -8,7 +8,7 @@ import org.apache.flink.api.java.tuple.Tuple2
 import org.muieer.flink_practice.java.config.CommandLineArgumentToFlinkConfiguration
 import org.slf4j.{Logger, LoggerFactory}
 
-object Demo {
+object WordCountDemo {
 
   val log: Logger = LoggerFactory.getLogger(this.getClass)
 
