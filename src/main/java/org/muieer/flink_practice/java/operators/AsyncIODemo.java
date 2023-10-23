@@ -26,7 +26,7 @@ public class AsyncIODemo {
     public static void taskAsyncExecute() throws Exception {
         var environment = StreamExecutionEnvironment.getExecutionEnvironment();
         DataStream<String> stream = environment.socketTextStream("localhost", 9999);
-        DataStream<String> asyncStream = AsyncDataStream.unorderedWait(stream, new AsyncReadFunction(), 10, TimeUnit.SECONDS);
+        DataStream<String> asyncStream = AsyncDataStream.unorderedWait(stream, new AsyncReadFunction(), 6, TimeUnit.SECONDS);
         asyncStream.print();
         environment.execute();
     }

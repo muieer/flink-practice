@@ -39,6 +39,7 @@ public class AsyncReadFunction extends RichAsyncFunction<String, String> {
 
     @Override
     public void timeout(String input, ResultFuture<String> resultFuture) throws Exception {
-        super.timeout(input, resultFuture);
+        System.out.println(input + " timeout");
+        resultFuture.complete(List.of());
     }
 }

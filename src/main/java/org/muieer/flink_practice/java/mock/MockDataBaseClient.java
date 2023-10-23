@@ -13,7 +13,7 @@ public class MockDataBaseClient {
         var callable = new Callable<String>() {
             @Override
             public String call() throws Exception {
-                Thread.sleep(1000 * (random.nextInt(5) + 2));
+                Thread.sleep(1010 * (random.nextInt(5) + 3));
                 return input + " query result output time is " + LocalDateTime.now();
             }
         };
