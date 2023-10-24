@@ -7,7 +7,7 @@ import java.util.concurrent.*;
 public class MockDataBaseClient {
 
     private static final Random random = new Random();
-    private static final ExecutorService executorService = Executors.newFixedThreadPool(2);
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(8);
 
     public Future<String> read(String input) {
         var callable = new Callable<String>() {

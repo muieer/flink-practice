@@ -34,7 +34,9 @@ public class AsyncReadFunction extends RichAsyncFunction<String, String> {
                 e.printStackTrace();
                 return "";
             }
-        }).thenAccept(str -> resultFuture.complete(List.of(str)));
+        })
+        .thenAccept(str -> resultFuture.complete(List.of(str))); // 虽然是同步操作，但不会阻塞，因为上又是异步
+        System.out.println(input);
     }
 
     @Override

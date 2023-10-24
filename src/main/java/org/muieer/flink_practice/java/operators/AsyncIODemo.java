@@ -18,16 +18,16 @@ public class AsyncIODemo {
     public static void taskSyncExecute() throws Exception {
         var environment = StreamExecutionEnvironment.getExecutionEnvironment();
         environment.getConfig().disableClosureCleaner();
-        DataStream<String> stream = environment.socketTextStream("localhost", 9999);
-        stream.map(new SyncReadFunction()).print();
+        DataStream<String> stream = environment.socketTextStream("localhost", 9999).setParallelism(1);
+        stream.map(new SyncReadFunction()).setParallelism(1).print().setParallelism(1);
         environment.execute();
     }
 
     public static void taskAsyncExecute() throws Exception {
         var environment = StreamExecutionEnvironment.getExecutionEnvironment();
-        DataStream<String> stream = environment.socketTextStream("localhost", 9999);
-        DataStream<String> asyncStream = AsyncDataStream.unorderedWait(stream, new AsyncReadFunction(), 6, TimeUnit.SECONDS);
-        asyncStream.print();
+        DataStream<String> stream = environment.socketTextStream("localhost", 9999).setParallelism(1);
+        DataStream<String> asyncStream = AsyncDataStream.unorderedWait(stream, new AsyncReadFunction(), 10, TimeUnit.SECONDS).setParallelism(1);
+        asyncStream.print().setParallelism(1);
         environment.execute();
     }
 
