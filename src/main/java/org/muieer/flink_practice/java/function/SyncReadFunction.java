@@ -21,6 +21,6 @@ public class SyncReadFunction extends RichMapFunction<String, String> {
 
     @Override
     public String map(String input) throws Exception {
-        return client.read(input).get();
+        return client.syncRead(input);
     }
 }
