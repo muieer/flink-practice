@@ -49,8 +49,9 @@ public class AsyncIODemo {
                 .ifException(RetryPredicates.HAS_EXCEPTION_PREDICATE)
                 .build();
 
+        // 容量是指同时异步处理的元素最大个数，如：当已经有 3 个元素处于异步处理的状态，则新来的元素会处于阻塞状态
         AsyncDataStream
-            .unorderedWaitWithRetry(stream, new AsyncReadFunction(), 10, TimeUnit.SECONDS, 10, /*NO_RETRY_STRATEGY*/asyncRetryStrategy)
+            .unorderedWaitWithRetry(stream, new AsyncReadFunction(), 10, TimeUnit.SECONDS, 3, /*NO_RETRY_STRATEGY*/asyncRetryStrategy)
             .setParallelism(1).print().setParallelism(1);
 
         environment.execute();
