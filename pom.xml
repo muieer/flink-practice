@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.muieer</groupId>
+    <groupId>io.github.muieer</groupId>
     <artifactId>flink-practice</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -73,6 +73,11 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.17</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-files</artifactId>
+            <version>1.17.1</version>
         </dependency>
     </dependencies>
 

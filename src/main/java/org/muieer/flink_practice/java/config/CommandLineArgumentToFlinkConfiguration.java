@@ -10,11 +10,12 @@ import java.util.Map;
 public class CommandLineArgumentToFlinkConfiguration {
 
     public static void main(String[] args) {
-
-//        String originCommandLineArgument = StringUtils.join(args, " ");
-//        System.out.println(commandLineArgumentToFlinkConfiguration(originCommandLineArgument));
         System.out.println(commandLineArgumentToFlinkConfiguration("-cmd1 arg1 -cmd2 arg2 -cmd3 -cmd4"));
+    }
 
+    public static Configuration commandLineArgumentToFlinkConfiguration(String[] mainMethodArgs) {
+        String originCommandLineArgument = StringUtils.join(mainMethodArgs, " ");
+        return commandLineArgumentToFlinkConfiguration(originCommandLineArgument);
     }
 
     /*
@@ -35,7 +36,7 @@ public class CommandLineArgumentToFlinkConfiguration {
             } else if (keyAndValue.length == 2) {
                 kvMap.put(keyAndValue[0], keyAndValue[1]);
             } else {
-                throw new IllegalArgumentException("CommandLine Argument is invalid: " + kv);
+                throw new IllegalArgumentException("CommandLine Argument is invalid: " + kv + ", 输入范例:-cmd1 arg1 -cmd2 arg2 -cmd3 -cmd4");
             }
         });
         return Configuration.fromMap(kvMap);
