@@ -9,6 +9,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.muieer.flink_practice.java.state.EnableCheckpointing.enableCheckpointing;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -23,7 +24,7 @@ public class FileSinkExample {
     public static void main(String[] args) throws Exception {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.enableCheckpointing(10000);
+        enableCheckpointing(env);
 
         var stream = env.socketTextStream("localhost", 9999)
                 .map(str -> Tuple2.of(Instant.now().toEpochMilli(), str))
