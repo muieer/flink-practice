@@ -6,6 +6,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 /*
 * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/fault-tolerance/checkpointing/
+* https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/concepts/stateful-stream-processing/
 * */
 public class EnableCheckpointing {
 
