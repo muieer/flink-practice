@@ -8,6 +8,9 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 import static org.muieer.flink_practice.java.state.EnableCheckpointing.enableCheckpointing;
 
+/*
+* https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/datastream/kafka/
+* */
 public class KafkaSourceExample {
 
     public static void main(String[] args) throws Exception {
