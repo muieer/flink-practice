@@ -23,11 +23,11 @@ public class TumblingWindowExample {
 
         var stream = env.socketTextStream("localhost", 9999);
         stream
-                .map(str -> Tuple2.of(str, 1)).returns(new TypeHint<Tuple2<String, Integer>>() {})
-                .windowAll(TumblingProcessingTimeWindows.of(Time.seconds(10), Time.seconds(5)))
-                .reduce((tupleA, tupleB) -> new Tuple2<>(tupleA.f0, tupleA.f1 + tupleB.f1))
-                .map(tuple2 -> String.format("current second:%d, 10s count: %d", LocalTime.now().getSecond(), tuple2.f1))
-                .print();
+            .map(str -> Tuple2.of(str, 1)).returns(new TypeHint<Tuple2<String, Integer>>() {})
+            .windowAll(TumblingProcessingTimeWindows.of(Time.seconds(10), Time.seconds(5)))
+            .reduce((tupleA, tupleB) -> new Tuple2<>(tupleA.f0, tupleA.f1 + tupleB.f1))
+            .map(tuple2 -> String.format("current second:%d, 10s count: %d", LocalTime.now().getSecond(), tuple2.f1))
+            .print();
 
         env.execute();
     }
