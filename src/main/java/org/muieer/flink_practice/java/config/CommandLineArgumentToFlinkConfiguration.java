@@ -1,6 +1,7 @@
 package org.muieer.flink_practice.java.config;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.api.java.utils.MultipleParameterTool;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 
@@ -19,6 +20,7 @@ public class CommandLineArgumentToFlinkConfiguration {
     * {@link org.apache.flink.api.java.utils.ParameterTool} 是 Flink 提供的参数解析工具，文档是
     * <a href="https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/application_parameters/">
     * Handling Application Parameters</a>
+    * {@link org.apache.flink.api.java.utils.MultipleParameterTool} 能解析多个参数
     * */
     public static ParameterTool parseCommandLineArgumentByParameterTool(String[] args) {
         ParameterTool parameterTool = ParameterTool.fromArgs(args);
