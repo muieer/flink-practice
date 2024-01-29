@@ -16,4 +16,5 @@ then
 fi
 echo "Jar 路径为：$jar_path"
 
+# 需要先启动本地 standalone 集群
 flink run --class "$mainclass" "$jar_path"
