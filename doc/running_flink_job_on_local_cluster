@@ -1,0 +1,10 @@
+## 启动或停止集群
+1. cd FlinkHome
+2. ./bin/start-cluster.sh
+3. ./bin/stop-cluster.sh
+
+## 提交 Flink 作业
+./bin/flink run examples/streaming/WordCount.jar
+
+## Web UI 查看作业信息
+http://localhost:8081
