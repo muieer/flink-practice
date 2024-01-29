@@ -1,6 +1,7 @@
 package org.muieer.flink_practice.java.config;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 
 import java.util.Arrays;
@@ -11,6 +12,22 @@ public class CommandLineArgumentToFlinkConfiguration {
 
     public static void main(String[] args) {
         System.out.println(commandLineArgumentToFlinkConfiguration("-cmd1 arg1 -cmd2 arg2 -cmd3 -cmd4"));
+        System.out.println(commandLineArgumentToFlinkConfigurationByParameterTool(args));
+    }
+
+    /*
+    * {@link org.apache.flink.api.java.utils.ParameterTool} 是 Flink 提供的参数解析工具，文档是
+    * <a href="https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/application_parameters/">
+    * Handling Application Parameters</a>
+    * */
+    public static ParameterTool parseCommandLineArgumentByParameterTool(String[] args) {
+        ParameterTool parameterTool = ParameterTool.fromArgs(args);
+        System.out.println(parameterTool.toMap());
+        return parameterTool;
+    }
+
+    public static Configuration commandLineArgumentToFlinkConfigurationByParameterTool(String[] mainMethodArgs) {
+        return ParameterTool.fromArgs(mainMethodArgs).getConfiguration();
     }
 
     public static Configuration commandLineArgumentToFlinkConfiguration(String[] mainMethodArgs) {
