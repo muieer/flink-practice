@@ -5,6 +5,7 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.muieer.flink_practice.java.function.DistinctAggregateFunction;
 
 import java.time.LocalTime;
 
@@ -16,7 +17,20 @@ public class TumblingWindowExample {
     public static void main(String[] args) throws Exception {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        runByReduceFunction(env);
+//        runByReduceFunction(env);
+        runByAggregateFunction(env);
+    }
+
+    public static void runByAggregateFunction(StreamExecutionEnvironment env) throws Exception {
+
+        var stream = env.socketTextStream("localhost", 9999);
+        stream
+                .windowAll(TumblingProcessingTimeWindows.of(Time.seconds(10), Time.seconds(5)))
+                .aggregate(new DistinctAggregateFunction())
+                .map(count -> String.format("该窗口出现过 %d 种不同的字符串", count))
+                .print();
+
+        env.execute();
     }
 
     public static void runByReduceFunction(StreamExecutionEnvironment env) throws Exception {
