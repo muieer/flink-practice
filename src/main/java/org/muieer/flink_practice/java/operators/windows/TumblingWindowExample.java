@@ -6,8 +6,11 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.muieer.flink_practice.java.function.DistinctAggregateFunction;
+import org.muieer.flink_practice.java.function.UserBillProcessWindowFunction;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Random;
 
 /*
 * https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/datastream/operators/windows/
@@ -18,7 +21,28 @@ public class TumblingWindowExample {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 //        runByReduceFunction(env);
-        runByAggregateFunction(env);
+//        runByAggregateFunction(env);
+        runByProcessWindowFunction(env);
+    }
+
+    public static void runByProcessWindowFunction(StreamExecutionEnvironment env) throws Exception {
+
+        var stream = env.socketTextStream("localhost", 9999);
+        var random = new Random();
+
+        stream
+            .map(str -> {
+                // f0 是用户名，f1 使用消费金额
+                Tuple2<String, Integer> tuple2 = Tuple2.of(str, random.nextInt(100) + 1);
+                System.out.println(String.format("user %s spend %d yuan at %s", tuple2.f0, tuple2.f1, LocalDateTime.now()));
+                return tuple2;
+            }).returns(new TypeHint<Tuple2<String, Integer>>() {})
+            .keyBy(tuple -> tuple.f0)
+            .window(TumblingProcessingTimeWindows.of(Time.seconds(10)))
+            .process(new UserBillProcessWindowFunction())
+            .print();
+
+        env.execute();
     }
 
     public static void runByAggregateFunction(StreamExecutionEnvironment env) throws Exception {
