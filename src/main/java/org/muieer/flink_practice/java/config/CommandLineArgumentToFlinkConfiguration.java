@@ -1,7 +1,6 @@
 package org.muieer.flink_practice.java.config;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.api.java.utils.MultipleParameterTool;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 

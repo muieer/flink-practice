@@ -11,8 +11,6 @@ import org.muieer.flink_practice.java.function.SyncReadFunction;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.flink.streaming.util.retryable.AsyncRetryStrategies.NO_RETRY_STRATEGY;
-
 /*
 * 所有算子的并行度设置为 1，异步或同步执行时，只有一个线程在处理任务，等价于只有一个 taskManager 和一个 slot。
 * 一个工作线程，同步执行，只有当上一个操作执行结束才能执行下一个。但是在异步执行的方式中，上一个没有执行结束就可以执行下一个。
@@ -39,12 +37,13 @@ public class AsyncIODemo {
         environment.execute();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static void taskAsyncExecute() throws Exception {
 
         var environment = StreamExecutionEnvironment.getExecutionEnvironment();
 
         DataStream<String> stream = environment.socketTextStream("localhost", 9999).setParallelism(1);
-        AsyncRetryStrategy<String> asyncRetryStrategy = new AsyncRetryStrategies.FixedDelayRetryStrategyBuilder<String>(3, 1000)
+        AsyncRetryStrategy asyncRetryStrategy = new AsyncRetryStrategies.FixedDelayRetryStrategyBuilder(3, 1000)
                 .ifResult(RetryPredicates.EMPTY_RESULT_PREDICATE)
                 .ifException(RetryPredicates.HAS_EXCEPTION_PREDICATE)
                 .build();

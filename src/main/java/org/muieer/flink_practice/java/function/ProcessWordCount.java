@@ -1,6 +1,5 @@
 package org.muieer.flink_practice.java.function;
 
-import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.state.StateTtlConfig;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
