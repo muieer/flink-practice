@@ -32,25 +32,24 @@ public class AsyncIODemo2 {
 
     static void run(StreamExecutionEnvironment env, ParameterTool parameterTool) {
 
-        DataStream<Record> recordStream =
-                env.socketTextStream("localhost", 9999)
-                        .setParallelism(1)
-                        .map(Record::new)
-                        .setParallelism(1);
+        DataStream<Record> recordStream = env.socketTextStream("localhost", 9999)
+                .setParallelism(1)
+                .map(Record::new)
+                .setParallelism(1);
 
         /*
-        * 当一条数据的重试次数等于最大重试值时，将不再重试，会发送这条数据给下一个子任务
-        * */
-        AsyncRetryStrategies.FixedDelayRetryStrategy<Record> retryStrategy =
-                new AsyncRetryStrategies.FixedDelayRetryStrategyBuilder<Record>(3, 3000)
-                        .ifResult(new EmptyPredicate())
-                        .build();
+         * 当一条数据的重试次数等于最大重试值时，将不再重试，会发送这条数据给下一个子任务
+         */
+        AsyncRetryStrategies.FixedDelayRetryStrategy<Record> retryStrategy = new AsyncRetryStrategies.FixedDelayRetryStrategyBuilder<Record>(
+                3, 3000)
+                .ifResult(new EmptyPredicate())
+                .build();
 
         /*
-        * 当一个分区或子任务的容量耗尽之后，阻塞新输入的数据
-        * */
+         * 当一个分区或子任务的容量耗尽之后，阻塞新输入的数据
+         */
         AsyncDataStream.unorderedWaitWithRetry(
-                        recordStream, new AsyncOperator(), 7, TimeUnit.SECONDS, 2, retryStrategy)
+                recordStream, new AsyncOperator(), 7, TimeUnit.SECONDS, 2, retryStrategy)
                 .setParallelism(1)
                 .filter(record -> record.retryCount == 0)
                 .setParallelism(1)
@@ -80,11 +79,14 @@ public class AsyncIODemo2 {
         // 消耗异步队列容量，对任务执行有负面影响
         @Override
         public void timeout(Record input, ResultFuture<Record> resultFuture) throws Exception {
-            System.out.println("timeout, "+ input);
+            System.out.println("timeout, " + input);
             resultFuture.complete(List.of(input));
         }
     }
 
+    /*
+    * 字符串长度为奇数，触发重试
+    * */
     static final class EmptyPredicate
             implements Predicate<Collection<Record>>, Serializable {
         private static final long serialVersionUID = 1L;
@@ -94,7 +96,9 @@ public class AsyncIODemo2 {
             Record[] array = collection.toArray(new Record[0]);
             Record record = array[0];
             boolean retry = record.content.length() % 2 == 1;
-            record.retryCount += 1;
+            if (retry) {
+                record.retryCount += 1;
+            }
             return retry;
         }
     }
