@@ -25,6 +25,7 @@ public class ConsecutiveWindowedExample {
 
         DataStreamSource<String> socketTextStream = streamExecutionEnvironment.socketTextStream("localhost", 9999);
         KeyedStream<Tuple2<String, Integer>, String> keyedStream = socketTextStream
+                .rescale()
                 .map(str -> Tuple2.of(str, 1)).returns(new TypeHint<Tuple2<String, Integer>>() {})
                 .keyBy(tuple2 -> tuple2.f0);
 
@@ -37,6 +38,7 @@ public class ConsecutiveWindowedExample {
     static void wordSortDescWindow(DataStreamSource<String> socketTextStream) {
         socketTextStream.windowAll(TumblingProcessingTimeWindows.of(Time.minutes(1)))
                 .aggregate(new WordCountAggregateFunction(), new WordSortDescProcessAllWindowFunction())
+                .shuffle()
                 .print();
     }
 
