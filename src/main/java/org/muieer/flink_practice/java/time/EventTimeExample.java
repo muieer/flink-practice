@@ -32,30 +32,13 @@ public class EventTimeExample {
                 env.socketTextStream("localhost", 9999)
                         .map(
                                 line -> {
-                                    DateTimeFormatter timeFormatter =
-                                            DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-
                                     long eventTimeMillis =
                                             Instant.now().toEpochMilli()
                                                     - ThreadLocalRandom.current().nextInt(100_000);
-                                    Instant eventTimeInstant =
-                                            Instant.ofEpochMilli(eventTimeMillis);
-                                    LocalDateTime eventTimeLocalDateTime =
-                                            LocalDateTime.ofInstant(
-                                                    eventTimeInstant,
-                                                    Clock.systemDefaultZone().getZone());
-                                    String eventTimeFormatDate =
-                                            eventTimeLocalDateTime.format(timeFormatter);
-
+                                    String eventTimeFormatDate = getFormatterDate(eventTimeMillis);
                                     long processTimeMillis = Instant.now().toEpochMilli();
-                                    Instant processTimeInstant =
-                                            Instant.ofEpochMilli(processTimeMillis);
-                                    LocalDateTime processTimeLocalDateTime =
-                                            LocalDateTime.ofInstant(
-                                                    processTimeInstant,
-                                                    Clock.systemDefaultZone().getZone());
                                     String processTimeFormatDate =
-                                            processTimeLocalDateTime.format(timeFormatter);
+                                            getFormatterDate(processTimeMillis);
 
                                     Tuple4<String, String, String, Long> tuple4 =
                                             Tuple4.of(
@@ -63,7 +46,6 @@ public class EventTimeExample {
                                                     processTimeFormatDate,
                                                     eventTimeFormatDate,
                                                     eventTimeMillis);
-                                    //
                                     // System.out.println(tuple4);
                                     return tuple4;
                                 })
@@ -74,11 +56,12 @@ public class EventTimeExample {
                         .withIdleness(Duration.ofSeconds(10))
                         .withTimestampAssigner((tuple4, timestamp) -> tuple4.f3);
 
-//        WatermarkStrategy<Tuple4<String, String, String, Long>> watermarkStrategy =
-//                WatermarkStrategy.<Tuple4<String, String, String, Long>>forBoundedOutOfOrderness(
-//                                Duration.ofSeconds(5))
-//                        .withIdleness(Duration.ofSeconds(10))
-//                        .withTimestampAssigner((tuple4, timestamp) -> tuple4.f3);
+        //        WatermarkStrategy<Tuple4<String, String, String, Long>> watermarkStrategy =
+        //                WatermarkStrategy.<Tuple4<String, String, String,
+        // Long>>forBoundedOutOfOrderness(
+        //                                Duration.ofSeconds(5))
+        //                        .withIdleness(Duration.ofSeconds(10))
+        //                        .withTimestampAssigner((tuple4, timestamp) -> tuple4.f3);
 
         sourceStream
                 .assignTimestampsAndWatermarks(customWatermarkStrategy)
