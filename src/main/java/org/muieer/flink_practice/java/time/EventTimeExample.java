@@ -11,6 +11,7 @@ import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindo
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
+import org.apache.flink.util.OutputTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class EventTimeExample {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventTimeExample.class);
+
     public static void main(String[] args) throws Exception {
+
         ParameterTool parameterTool = ParameterTool.fromArgs(args);
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.getConfig().setAutoWatermarkInterval(Duration.ofSeconds(5).toMillis());
@@ -34,8 +38,9 @@ public class EventTimeExample {
                                 line -> {
                                     long eventTimeMillis =
                                             Instant.now().toEpochMilli()
-                                                    - ThreadLocalRandom.current().nextInt(100_000);
+                                                    - ThreadLocalRandom.current().nextInt(60_000);
                                     String eventTimeFormatDate = getFormatterDate(eventTimeMillis);
+
                                     long processTimeMillis = Instant.now().toEpochMilli();
                                     String processTimeFormatDate =
                                             getFormatterDate(processTimeMillis);
@@ -43,10 +48,9 @@ public class EventTimeExample {
                                     Tuple4<String, String, String, Long> tuple4 =
                                             Tuple4.of(
                                                     line,
-                                                    processTimeFormatDate,
-                                                    eventTimeFormatDate,
+                                                    "处理时间: " + processTimeFormatDate,
+                                                    "事件时间: " + eventTimeFormatDate,
                                                     eventTimeMillis);
-                                    // System.out.println(tuple4);
                                     return tuple4;
                                 })
                         .returns(new TypeHint<Tuple4<String, String, String, Long>>() {});
@@ -63,10 +67,14 @@ public class EventTimeExample {
         //                        .withIdleness(Duration.ofSeconds(10))
         //                        .withTimestampAssigner((tuple4, timestamp) -> tuple4.f3);
 
-        sourceStream
+        final OutputTag<Tuple4<String, String, String, Long>> lateOutputTag = new OutputTag<>("late-data") {};
+
+        SingleOutputStreamOperator<Tuple4<String, String, String, Long>> dataStream = sourceStream
                 .assignTimestampsAndWatermarks(customWatermarkStrategy)
                 .keyBy(tuple4 -> tuple4.f0)
                 .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+                .allowedLateness(Time.seconds(5L))
+                .sideOutputLateData(lateOutputTag)
                 .reduce(
                         (tupleA, tupleB) -> {
                             if (tupleA.f3 >= tupleB.f3) {
@@ -77,13 +85,19 @@ public class EventTimeExample {
                         },
                         new MyProcessWindowFunction());
 
+        dataStream.getSideOutput(lateOutputTag)
+                        .map(tuple4 -> {
+                            LOGGER.info("@muieer, late output, {}", tuple4);
+                            return 1L;
+                        });
+
         env.execute();
     }
 
     static String getFormatterDate(long millis) {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         Instant instant = Instant.ofEpochMilli(millis);
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, Clock.systemUTC().getZone());
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, Clock.systemDefaultZone().getZone());
         return localDateTime.format(timeFormatter);
     }
 
