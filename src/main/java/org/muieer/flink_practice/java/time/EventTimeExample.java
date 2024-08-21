@@ -31,6 +31,7 @@ public class EventTimeExample {
         ParameterTool parameterTool = ParameterTool.fromArgs(args);
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.getConfig().setAutoWatermarkInterval(Duration.ofSeconds(5).toMillis());
+        env.getCheckpointConfig().setCheckpointInterval(Duration.ofSeconds(5).toMillis());
 
         SingleOutputStreamOperator<Tuple4<String, String, String, Long>> sourceStream =
                 env.socketTextStream("localhost", 9999)
