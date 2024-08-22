@@ -8,6 +8,10 @@ import org.apache.flink.connector.file.src.FileSource;
 import org.apache.flink.connector.file.src.reader.TextLineInputFormat;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.util.CloseableIterator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BatchProcessExample {
 
@@ -20,24 +24,35 @@ public class BatchProcessExample {
                         .build();
 
         // 统计单词出现的频次
-        env.fromSource(source, WatermarkStrategy.noWatermarks(), "")
-                .flatMap(
-                        (line, collector) -> {
-                            for (String word : line.split(" ")) {
-                                collector.collect(word);
-                            }
-                        })
-                .returns(new TypeHint<>() {})
-                .map(
-                        str -> {
-                            System.out.println(str);
-                            return Tuple2.of((String) str, 1);
-                        })
-                .returns(new TypeHint<Tuple2<String, Integer>>() {})
-                .keyBy(tuple2 -> tuple2.f0)
-                .reduce((tuple2A, tuple2B) -> new Tuple2<>(tuple2A.f0, tuple2A.f1 + tuple2B.f1))
-                .print();
+        CloseableIterator<Tuple2<String, Integer>> closeableIterator =
+                env.fromSource(source, WatermarkStrategy.noWatermarks(), "")
+                        .flatMap(
+                                (line, collector) -> {
+                                    for (String word : line.split(" ")) {
+                                        collector.collect(word);
+                                    }
+                                })
+                        .returns(new TypeHint<>() {})
+                        .map(
+                                str -> {
+                                    return Tuple2.of((String) str, 1);
+                                })
+                        .returns(new TypeHint<Tuple2<String, Integer>>() {})
+                        .keyBy(tuple2 -> tuple2.f0)
+                        .reduce(
+                                (tuple2A, tuple2B) ->
+                                        new Tuple2<>(tuple2A.f0, tuple2A.f1 + tuple2B.f1))
+                        .executeAndCollect();
 
-        env.execute();
+        try {
+            List<String> list = new ArrayList<>();
+            while (closeableIterator.hasNext()) {
+                Tuple2<String, Integer> next = closeableIterator.next();
+                list.add(String.format("%s_%s", next.f0, next.f1));
+            }
+            System.out.println(list);
+        } finally {
+            closeableIterator.close();
+        }
     }
 }
